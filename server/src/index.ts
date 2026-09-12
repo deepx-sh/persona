@@ -6,7 +6,7 @@ import { toNodeHandler } from 'better-auth/node';
 import { authRateLimiter } from './middlewares/rateLimit.middleware.js';
 import { notFound } from './middlewares/notfound.middleware.js';
 import { errorHandler } from './middlewares/errorHandler.middleware.js';
-
+import contactRoutes from './routes/contact.route.js'
 dotenv.config();
 
 const app = express();
@@ -34,7 +34,7 @@ const startServer = async () => {
     res.json({status:"ok",service:"persona-api"})
     })
     
-
+    app.use("/api/contacts",contactRoutes)
     app.use(notFound);
     app.use(errorHandler);
     app.listen(PORT, () => {
