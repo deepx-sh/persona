@@ -46,6 +46,10 @@ const contactSchema = new Schema<IContact>({
         required: true,
         trim: true,
     },
+    rawProfileText: {
+        type: String,
+        trim:true,
+    },
     analyzedProfile: {
         type: analyzedProfileSchema,
         default:undefined

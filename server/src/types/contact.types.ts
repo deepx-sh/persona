@@ -12,6 +12,7 @@ export interface IContact extends Document{
     company: string;
     role: string;
     linkedinUrl: string;
+    rawProfileText:string,
     analyzedProfile?: IAnalyzedProfile;
     createdAt: Date;
     updatedAt: Date;
