@@ -13,3 +13,7 @@ export const contactUpdateSchema = z.object({
     role: z.string().min(1, "Role is required").optional(),
     linkedinUrl: z.url().optional()
 })
+
+export const analyzeProfileSchema = z.object({
+    rawProfileText:z.string().min(20,"Please provide at least a few sentences of profile text")
+})
