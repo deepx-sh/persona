@@ -39,3 +39,36 @@ export const generateContactMessage = asyncHandler(async (req: Request, res: Res
 
     res.status(201).json(new ApiResponse(201,message,"Message generated"))
 })
+
+export const getContactMessage = asyncHandler(async (req: Request, res: Response) => {
+    const userId = (req as any).user.id;
+
+    if (!req.params.id) {
+        throw new ApiError(400,"Contact ID is missing")
+    }
+    const contact = await Contact.findOne({ _id: req.params.id, user: userId })
+    
+    if (!contact) {
+        throw new ApiError(404,"Contact not found")
+    }
+    const messages = await Message.find({ contact: contact._id, user: userId }).sort({ createdAt: -1 })
+    
+    res.status(200).json(new ApiResponse(200,messages))
+})
+
+
+export const deleteMessage = asyncHandler(async (req: Request, res: Response) => {
+    const userId = (req as any).user.id;
+
+    if (!req.params.messageId) {
+        throw new ApiError(400,"Message ID is missing")
+    }
+
+    const message = await Message.findOneAndReplace({ _id: req.params.messageId, user: userId })
+    
+    if (!message) {
+        throw new ApiError(404,"Message not found")
+    }
+
+    res.status(200).json(new ApiResponse(200,null,"Message deleted"))
+})
