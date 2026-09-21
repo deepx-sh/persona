@@ -4,6 +4,7 @@ import { csvUpload } from "../config/multer.js";
 
 import { uploadContactsCSV, getContacts, getContactById, updateContact, deleteContact } from "../controllers/contact.controller.js";
 import { analyzeContactProfile } from "../controllers/profileAnalyzer.controller.js";
+import { generateContactMessage,getContactMessage } from "../controllers/message.controller.js";
 const router = Router()
 
 router.use(requireAuth)
@@ -11,7 +12,9 @@ router.use(requireAuth)
 router.post("/upload", csvUpload.single("file"), uploadContactsCSV)
 router.get("/", getContacts)
 router.get("/:id", getContactById);
-router.post("/:id/analyze",analyzeContactProfile)
+router.post("/:id/analyze", analyzeContactProfile)
+router.post("/:id/messages/generate", generateContactMessage)
+router.get("/:id/messages",getContactMessage)
 router.patch("/:id", updateContact)
 router.delete("/:id",deleteContact)
 
