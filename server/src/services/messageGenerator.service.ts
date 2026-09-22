@@ -68,7 +68,13 @@ Return ONLY a JSON object with this exact shape, no markdown, no extra text:
     }
 
     try {
-        const parsed = JSON.parse(text)
+
+          const jsonText = text
+            .replace(/^```(?:json)?\s*/i, "")
+            .replace(/\s*```$/i, "")
+            .trim();
+
+        const parsed = JSON.parse(jsonText)
         
         if (typeof parsed.content !== "string" || !parsed.content.trim()) {
             throw new Error("Malformed AI response")
@@ -79,6 +85,8 @@ Return ONLY a JSON object with this exact shape, no markdown, no extra text:
             content:parsed.content
         }
     } catch (error) {
+        console.log(error);
+        
         throw new ApiError(502,"AI returned an unexpected response format")
     }
 
