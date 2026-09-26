@@ -16,7 +16,7 @@ const templateSchema = new Schema<ITemplate>(
         },
         category: {
             type: String,
-            enum: ["recuitment", "saas_sales", "partnership", "investor_outreach", "custom"],
+            enum: ["recruitment", "saas_sales", "partnership", "investor_outreach", "custom"],
             required:true
         },
         description: {
