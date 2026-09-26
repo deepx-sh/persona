@@ -1,6 +1,6 @@
 import type { Document, Types } from "mongoose";
 
-export type TemplateCategory = "recruitment" | "saas_sales" | "partnership" | "investor_outrich" | "custom";
+export type TemplateCategory = "recruitment" | "saas_sales" | "partnership" | "investor_outreach" | "custom";
 
 export interface ITemplate extends Document{
     user: Types.ObjectId;
