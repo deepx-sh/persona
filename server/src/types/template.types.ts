@@ -7,7 +7,7 @@ export interface ITemplate extends Document{
     name: string;
     category: TemplateCategory;
     description?: string;
-    promptGuidence: string;
+    promptGuidance: string;
     isSystemDefault: boolean;
     createdAt: Date;
     updatedAt:Date
