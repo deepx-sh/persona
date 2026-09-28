@@ -22,7 +22,7 @@ const templateSchema = new Schema<ITemplate>(
         description: {
             type:String
         },
-        promptGuidence: {
+        promptGuidance: {
             type: String,
             required:true
         },
