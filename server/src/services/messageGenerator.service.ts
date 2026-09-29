@@ -26,13 +26,15 @@ const toneInstructions: Record<MessageTone, string>= {
 
 export const generateMessage = async (contact: IContact,
     type: MessageType,
-    tone:MessageTone
+    tone: MessageTone,
+    templateGuidance?:string
 ): Promise<GeneratedMessage> => {
    
     const profile = contact.analyzedProfile;
 
     const profileContext = profile ? `Job Title: ${profile.jobTitle || contact.role} Skills: ${(profile.skills || []).join(", ")} About: ${profile.about || "N/A"}` : `Role: ${contact.role} (profile not yet analyzed - use only this and company info)`
     
+    const templateSection = templateGuidance ? `\nTemplate/positioning guidance: ${templateGuidance}\n` : "";
     const prompt=
    `
 You are writing a cold outreach message for a sales/networking purpose.
@@ -44,7 +46,7 @@ ${profileContext}
 
 Message type: ${type}
 Instructions for this type: ${typeInstructions[type]}
-
+${templateSection}
 Tone: ${tone}
 Tone guidance: ${toneInstructions[tone]}
 
