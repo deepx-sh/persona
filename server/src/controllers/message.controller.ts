@@ -6,6 +6,7 @@ import { asyncHandler } from "../utils/asyncHandler.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { ApiError } from "../utils/ApiError.js";
 import { generateMessageSchema } from "../validations/message.validation.js";
+import { Template } from "../models/template.model.js";
 
 export const generateContactMessage = asyncHandler(async (req: Request, res: Response) => {
     const userId = (req as any).user.id;
@@ -24,7 +25,17 @@ export const generateContactMessage = asyncHandler(async (req: Request, res: Res
         throw new ApiError(404,"Contact not found")
     }
     
-    const { type, tone } = result.data
+    const { type, tone, templateId } = result.data
+    
+    let templateGuidance: string | undefined;
+
+    if (templateId) {
+        const template = await Template.findOne({ _id: templateId, user: userId })
+        if (!template) {
+            throw new ApiError(404,"Template not found")
+        }
+        templateGuidance=template.promptGuidance
+    }
     
     const generated = await generateMessage(contact, type, tone)
     
