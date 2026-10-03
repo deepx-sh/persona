@@ -32,6 +32,19 @@ const messageSchema = new Schema<IMessage>(
         content: {
             type: String,
             required:true
+        },
+        language: {
+            type: String,
+            enum: ["en" , "hi" ,"es" , "de"],
+            default:"en"
+        },
+        variantGroup: {
+            type: String,
+            index:true
+        },
+        variantLabel: {
+            type: String,
+            enum:["A","B","C"],
         }
     },
     {timestamps:true}
