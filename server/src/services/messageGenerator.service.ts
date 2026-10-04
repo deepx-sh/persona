@@ -1,13 +1,19 @@
 import genAI from "../config/geminiAI.js";
 import { ApiError } from "../utils/ApiError.js";
 import type { IContact } from "../types/contact.types.js";
-import type { MessageType, MessageTone } from "../types/message.types.js";
+import type { MessageType, MessageTone, MessageLanguage } from "../types/message.types.js";
 
 interface GeneratedMessage{
     subject?: string;
     content: string;
 }
 
+const languageNames: Record<MessageLanguage, string> = {
+    en: "English",
+    hi: "Hindi",
+    es: "Spanish",
+    de:"German"
+}
 const typeInstructions: Record<MessageType, string> = {
     linkedin_note:
         "Write a LinkedIn connection request note. Maximum 300 characters (LinkedIn's hard limit). No subject line. Be warm but brief - this is the first touchpoint.",
@@ -27,7 +33,9 @@ const toneInstructions: Record<MessageTone, string>= {
 export const generateMessage = async (contact: IContact,
     type: MessageType,
     tone: MessageTone,
-    templateGuidance?:string
+    templateGuidance?: string,
+    language: MessageLanguage = "en",
+    variantInstruction?:string
 ): Promise<GeneratedMessage> => {
    
     const profile = contact.analyzedProfile;
@@ -35,6 +43,7 @@ export const generateMessage = async (contact: IContact,
     const profileContext = profile ? `Job Title: ${profile.jobTitle || contact.role} Skills: ${(profile.skills || []).join(", ")} About: ${profile.about || "N/A"}` : `Role: ${contact.role} (profile not yet analyzed - use only this and company info)`
     
     const templateSection = templateGuidance ? `\nTemplate/positioning guidance: ${templateGuidance}\n` : "";
+    const variantSection = variantInstruction ? `\n${variantInstruction}\n` : "";
     const prompt=
    `
 You are writing a cold outreach message for a sales/networking purpose.
@@ -49,7 +58,9 @@ Instructions for this type: ${typeInstructions[type]}
 ${templateSection}
 Tone: ${tone}
 Tone guidance: ${toneInstructions[tone]}
+${variantSection}
 
+Write the ENTIRE message in ${languageNames[language]}. All output text must be in ${languageNames[language]}, including the subject line if applicable.
 Return ONLY a JSON object with this exact shape, no markdown, no extra text:
 {
   "subject": "string or empty string if not applicable (e.g. for linkedin_note)",
