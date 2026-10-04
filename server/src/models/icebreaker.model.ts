@@ -1,4 +1,4 @@
-import { Schema, type Document, type Types } from "mongoose";
+import mongoose, { Schema, type Document, type Types } from "mongoose";
 
 export interface IIcebreaker extends Document{
     user: Types.ObjectId;
@@ -29,3 +29,5 @@ const icebreakerSchema = new Schema<IIcebreaker>(
     },
     {timestamps:{createdAt:true,updatedAt:false}}
 )
+
+export const Icebreaker=mongoose.model<IIcebreaker>("Icebreaker",icebreakerSchema)
