@@ -7,6 +7,13 @@ import { ApiResponse } from "../utils/ApiResponse.js";
 import { ApiError } from "../utils/ApiError.js";
 import { generateMessageSchema } from "../validations/message.validation.js";
 import { Template } from "../models/template.model.js";
+import { randomUUID } from "node:crypto";
+
+const VARIANT_ANGLES = [
+    undefined,
+    "This is Variant B - take a more direct, benefit-led angle. Lead with the value propostion immediately",
+    "This is Variant C - take a more curiosity-driven angle. Open with a question or observation rather than a statement."
+]
 
 export const generateContactMessage = asyncHandler(async (req: Request, res: Response) => {
     const userId = (req as any).user.id;
@@ -25,7 +32,7 @@ export const generateContactMessage = asyncHandler(async (req: Request, res: Res
         throw new ApiError(404,"Contact not found")
     }
     
-    const { type, tone, templateId } = result.data
+    const { type, tone, templateId,language,generateVariants } = result.data
     
     let templateGuidance: string | undefined;
 
@@ -37,18 +44,50 @@ export const generateContactMessage = asyncHandler(async (req: Request, res: Res
         templateGuidance=template.promptGuidance
     }
     
-    const generated = await generateMessage(contact, type, tone)
+    if (!generateVariants) {
+        const generated = await generateMessage(contact, type, tone,templateGuidance,language)
     
     const message = await Message.create({
         user: userId,
         contact: contact._id,
         type,
         tone,
-        ...(!generated.subject!=undefined && {subject:generated.subject}),
+        language,
+        ...(!generated.subject!=undefined ? {subject:generated.subject}:{}),
         content:generated.content,
     })
 
     res.status(201).json(new ApiResponse(201,message,"Message generated"))
+    }
+
+    const variantGroup = randomUUID();
+
+    const labels: Array<"A" | "B" | "C"> = ["A", "B", "C"]
+    
+    const message = [];
+
+    for (let i = 0; i < 3; i++){
+        const generated = await generateMessage(
+            contact,
+            type,
+            tone,
+            templateGuidance,
+            language,
+            VARIANT_ANGLES[i]
+        )
+
+        const message = await Message.create({
+            user: userId,
+            contact: contact._id,
+            type,
+            tone,
+            language,
+            ...(!generated.subject!=undefined ? {subject:generated.subject}:{}),
+            content: generated.content,
+            variantGroup,
+            variantLabel:labels[i] || "A",
+        })
+    }
 })
 
 export const getContactMessage = asyncHandler(async (req: Request, res: Response) => {
