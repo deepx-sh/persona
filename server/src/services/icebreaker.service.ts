@@ -38,7 +38,7 @@ Return ONLY a JSON object: { "icebreakers": ["...", "...", "..."] }`.trim();
             .replace(/\s*```$/i, "")
             .trim();
         
-        const parsed = JSON.parse(text);
+        const parsed = JSON.parse(jsonText);
         if (!Array.isArray(parsed.icebreakers)) throw new Error("Malformed response")
         return parsed.icebreakers;
     } catch (error) {
