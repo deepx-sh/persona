@@ -64,7 +64,7 @@ export const generateContactMessage = asyncHandler(async (req: Request, res: Res
 
     const labels: Array<"A" | "B" | "C"> = ["A", "B", "C"]
     
-    const message = [];
+    const messages = [];
 
     for (let i = 0; i < 3; i++){
         const generated = await generateMessage(
@@ -85,9 +85,12 @@ export const generateContactMessage = asyncHandler(async (req: Request, res: Res
             ...(!generated.subject!=undefined ? {subject:generated.subject}:{}),
             content: generated.content,
             variantGroup,
-            variantLabel:labels[i] || "A",
+            ...(i>0 ? {variantLabel:labels[i]}:{})
         })
+        messages.push(message);
     }
+
+    res.status(201).json(new ApiResponse(201,messages,"A/B/C variants generated"))
 })
 
 export const getContactMessage = asyncHandler(async (req: Request, res: Response) => {
