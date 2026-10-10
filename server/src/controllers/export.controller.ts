@@ -32,3 +32,30 @@ export const exportContacts = asyncHandler(async (req: Request, res: Response) =
     res.setHeader("Content-Disposition", "attachment; filename=persora-contacts.csv")
     res.send(csv);
 })
+
+export const exportMessages = asyncHandler(async (req: Request, res: Response) => {
+    const userId = (req as any).user.id;
+    const format = (req.query.format as string) || "csv"
+    
+    const messages = await Message.find({ user: userId })
+        .populate("contact")
+        .sort({ createdAt: -1 })
+    
+    if (messages.length === 0) {
+        throw new ApiError(404,"No messages to export")
+    }
+
+    const typedMessages = messages as any;
+
+    if (format === "xlsx") {
+        const buffer = await exportMessageExcel(typedMessages);
+        res.setHeader("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+        res.setHeader("Content-Disposition", "attachment; filename=persora-messages.xlsx")
+        return res.send(buffer)
+    }
+
+    const csv = exportMessagesCSV(typedMessages);
+    res.setHeader("Content-Type", "text/csv")
+    res.setHeader("Content-Disposition", "attachment; filename=persora-messages.csv")
+    res.send(csv)
+})
