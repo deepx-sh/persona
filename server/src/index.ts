@@ -9,6 +9,7 @@ import { errorHandler } from './middlewares/errorHandler.middleware.js';
 import contactRoutes from './routes/contact.route.js'
 import messageRoutes from './routes/message.route.js'
 import templateRoutes from './routes/template.routes.js'
+import exportRoutes from "./routes/export.routes.js"
 
 const app = express();
 
@@ -37,7 +38,8 @@ const startServer = async () => {
     
     app.use("/api/contacts", contactRoutes)
     app.use("/api/messages", messageRoutes)
-    app.use("/api/templates",templateRoutes)
+    app.use("/api/templates", templateRoutes)
+    app.use("/api/export",exportRoutes)
     app.use(notFound);
     app.use(errorHandler);
     app.listen(PORT, () => {
