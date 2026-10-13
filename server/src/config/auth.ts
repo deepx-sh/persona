@@ -4,7 +4,7 @@ import mongoose from "mongoose";
 import { sendEmail } from "../utils/email.js";
 import { buildVerificationEmail } from "../templates/verificationEmail.template.js";
 import { buildResetPasswordEmail } from "../templates/resetPasswordEmail.template.js";
-
+import { admin } from "better-auth/plugins";
 
 export const auth = betterAuth({
   database: mongodbAdapter(mongoose.connection.db!),
@@ -36,8 +36,9 @@ export const auth = betterAuth({
     google: {
       clientId: process.env.GOOGLE_CLIENT_ID as string,
       clientSecret:process.env.GOOGLE_CLIENT_SECRET as string
-    }
+    },
   },
+  plugins:[admin()],
   secret: process.env.BETTER_AUTH_SECRET,
   baseURL: process.env.BETTER_AUTH_URL || "http://localhost:5000",
   trustedOrigins: [process.env.CLIENT_URL || "http://localhost:3000"],
