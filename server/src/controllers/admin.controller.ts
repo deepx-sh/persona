@@ -8,6 +8,7 @@ import { asyncHandler } from "../utils/asyncHandler.js"
 import { ApiResponse } from "../utils/ApiResponse.js"
 import { ApiError } from "../utils/ApiError.js"
 import { setRoleSchema, banUserSchema } from "../validations/admin.validations.js"
+import { from } from "node:stream/iter"
 
 
 const usersCollection = () => mongoose.connection.db!.collection("user")
@@ -135,6 +136,115 @@ export const getUserById = asyncHandler(async(req: Request, res: Response) => {
             createdAt: user.createdAt,
             usage: usageFor(objectId),
             lastActiveAt:lastMessage?.createdAt || null
+        })
+    )
+})
+
+export const setUserRole = asyncHandler(async (req: Request, res: Response) => {
+    
+    if (typeof req.params.id !== "string") {
+        throw new ApiError(400,"User ID is required")
+    }
+
+    assertValidId(req.params.id)
+    assertNotSelf(req, req.params.id)
+    
+    const result = setRoleSchema.safeParse(req.body)
+    if (!result.success) {
+        throw new ApiError(400, "Validation failed", result.error.issues.map((e) => e.message))
+    }
+
+    const { auth } = await import("../config/auth.js")
+    await auth.api.setRole({
+        body: { userId: req.params.id, role: result.data.role },
+        headers:fromNodeHeaders(req.headers)
+    })
+
+    res.status(200).json(new ApiResponse(200,null,`Role updated to ${result.data.role}`))
+})
+
+
+export const banUser = asyncHandler(async (req: Request, res: Response) => {
+    if (typeof req.params.id !== "string") {
+        throw new ApiError(400,"User ID is required")
+    }
+
+    assertValidId(req.params.id);
+    assertNotSelf(req, req.params.id);
+
+    const result = banUserSchema.safeParse(req.body)
+    if (!result.success) {
+        throw new ApiError(400,"Validation failed",result.error.issues.map((e) => e.message))
+    }
+
+    const { reason, expiresInDays } = result.data
+    
+    const { auth } = await import("../config/auth.js");
+
+    await auth.api.banUser({
+        body: {
+            userId: req.params.id,
+            banReason: reason,
+            banExpiresIn:expiresInDays ? expiresInDays *24*60*60:undefined
+        },
+        headers:fromNodeHeaders(req.headers)
+    })
+
+    res.status(200).json(new ApiResponse(200,null,"User banned"))
+})
+
+export const unbanUser = asyncHandler(async (req: Request, res: Response) => {
+    if (typeof req.params.id !== "string") {
+        throw new ApiError(400,"User ID is required")
+    }
+
+    assertValidId(req.params.id);
+
+    const { auth } = await import("../config/auth.js")
+    
+    await auth.api.unbanUser({
+        body: { userId: req.params.id },
+        headers:fromNodeHeaders(req.headers)
+    })
+
+    res.status(200).json(new ApiResponse(200,null,"User unbanned"))
+})
+
+
+export const getPlatformStats = asyncHandler(async (req: Request, res: Response) => {
+    const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
+    
+    const [
+        totalUsers,
+        verifiedUsers,
+        bannedUsers,
+        newUsersLast7Days,
+        totalContacts,
+        totalMessages,
+      totalIcebreakers
+    ] = await Promise.all([
+        usersCollection().countDocuments({}),
+        usersCollection().countDocuments({ emailVerified: true }),
+        usersCollection().countDocuments({ banned: true }),
+        usersCollection().countDocuments({ createdAt: { $gte: sevenDaysAgo } }),
+        Contact.countDocuments({}),
+        Message.countDocuments({}),
+        Icebreaker.countDocuments({})
+    ])
+
+    res.status(200).json(
+        new ApiResponse(200, {
+            users: {
+                total: totalUsers,
+                verified: verifiedUsers,
+                banned: bannedUsers,
+                newLast7Days:newUsersLast7Days
+            },
+            usage: {
+                contacts: totalContacts,
+                messages: totalMessages,
+                icebreakers:totalIcebreakers
+            }
         })
     )
 })
