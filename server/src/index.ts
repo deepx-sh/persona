@@ -11,6 +11,7 @@ import messageRoutes from './routes/message.route.js'
 import templateRoutes from './routes/template.routes.js'
 import exportRoutes from "./routes/export.routes.js"
 import dashboardRoutes from "./routes/dashboard.routes.js"
+import adminRoutes from "./routes/admin.routes.js"
 
 const app = express();
 
@@ -41,7 +42,8 @@ const startServer = async () => {
     app.use("/api/messages", messageRoutes)
     app.use("/api/templates", templateRoutes)
     app.use("/api/export", exportRoutes)
-    app.use("/api/dashboard",dashboardRoutes)
+    app.use("/api/dashboard", dashboardRoutes)
+    app.use("/api/admin",adminRoutes)
     app.use(notFound);
     app.use(errorHandler);
     app.listen(PORT, () => {
