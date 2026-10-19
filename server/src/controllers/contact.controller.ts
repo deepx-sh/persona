@@ -4,7 +4,9 @@ import { Contact } from "../models/contact.model.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { ApiError } from "../utils/ApiError.js";
-import { contactRowSchema,contactUpdateSchema } from "../validations/contact.validation.js";
+import { contactRowSchema, contactUpdateSchema } from "../validations/contact.validation.js";
+import { Message } from "../models/message.model.js";
+import { Icebreaker } from "../models/icebreaker.model.js";
 import z from "zod";
 
 export const uploadContactsCSV=asyncHandler(async(req:Request,res:Response)=>{
@@ -119,5 +121,12 @@ export const deleteContact = asyncHandler(async (req: Request, res: Response) =>
         throw new ApiError(404,"Contact not found")
     }
 
-    res.status(200).json(new ApiResponse(200,null,"Contact deleted"))
+    const [messages,icebreakers] = await Promise.all([
+        Message.deleteMany({ contact: contact._id, user: userId }),
+        Icebreaker.deleteMany({contact:contact._id,user:userId})
+    ])
+    res.status(200).json(new ApiResponse(200, {
+        deletedMessages: messages.deletedCount,
+        deletedIcebreakers:icebreakers.deletedCount
+    },"Contact deleted"))
 })
