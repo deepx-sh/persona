@@ -2,9 +2,13 @@ import Link from "next/link";
 import { MessageSquareText } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-export function Logo({className}:{className?:string}) {
+interface LogoProps{
+    className?: string;
+    href?: string;
+}
+export function Logo({className,href="/"}:LogoProps) {
     return (
-        <Link href="/"
+        <Link href={href}
         className={cn("inline-flex items-center gap-2 font-semibold tracking-tight",className)}
         >
 
