@@ -15,9 +15,10 @@ import { AuthDivider } from "./auth-divider";
 
 interface SignInFormProps{
     oauthError?: boolean;
+    passwordReset?: boolean;
 }
 
-export function SignInForm({oauthError=false}:SignInFormProps) {
+export function SignInForm({oauthError=false,passwordReset=false}:SignInFormProps) {
     const router = useRouter();
     const [serverError, setServerError] = useState<string | null>(
         oauthError?"We couldn't sign you in with Google. Please try again.":null
@@ -66,6 +67,12 @@ export function SignInForm({oauthError=false}:SignInFormProps) {
             </div>
 
             {serverError && <FormAlert>{serverError}</FormAlert>}
+
+            {passwordReset && !serverError && (
+                <FormAlert variant="success">
+                    Password updated. Sign in with your new password
+                </FormAlert>
+            )}
 
             <GoogleButton onError={setServerError} />
             
