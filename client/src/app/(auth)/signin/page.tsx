@@ -6,8 +6,8 @@ export const metadata: Metadata = { title: "Sign in" };
 export default async function SignInPage({
     searchParams,
 }: {
-        searchParams: Promise<{ error?: string }>;
+        searchParams: Promise<{ error?: string; reset?:string}>;
     }) {
-    const { error } = await searchParams;
-    return <SignInForm oauthError={Boolean(error)} />
+    const { error,reset } = await searchParams;
+    return <SignInForm oauthError={Boolean(error)} passwordReset={reset==="success"} />
 }
