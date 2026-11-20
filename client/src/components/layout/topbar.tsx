@@ -1,5 +1,6 @@
 import { Logo } from "@/components/brand/logo";
 import { MobileNav } from "@/components/layout/mobile-nav";
+import { UserMenu } from "./user-menu";
 
 
 export function Topbar() {
@@ -9,7 +10,7 @@ export function Topbar() {
         <MobileNav />
         <Logo href="/dashboard" className="lg:hidden" />
       </div>
-
+    <UserMenu/>
     </header>
   );
 }
